@@ -1,0 +1,193 @@
+*marked-preview.txt*  Plugin for Marked 2 integration with Neovim
+
+==============================================================================
+CONTENTS                                                           *marked-preview*
+
+  1. Introduction ................ |marked-preview-introduction|
+  2. Requirements ................ |marked-preview-requirements|
+  3. Installation ................ |marked-preview-installation|
+  4. Configuration ............... |marked-preview-configuration|
+  5. Commands .................... |marked-preview-commands|
+  6. Usage ....................... |marked-preview-usage|
+  7. Troubleshooting ............. |marked-preview-troubleshooting|
+  8. API Reference ............... |marked-preview-api|
+
+==============================================================================
+INTRODUCTION                                                   *marked-preview-introduction*
+
+marked-preview.nvim is a Neovim plugin that provides real-time Markdown preview 
+integration with the Marked 2 app on macOS. It allows you to preview your 
+Markdown files in Marked 2 as you type, providing a seamless writing experience.
+
+The plugin automatically copies your buffer content to Marked 2's streaming 
+clipboard and can optionally update the preview automatically on every text 
+change.
+
+==============================================================================
+REQUIREMENTS                                                   *marked-preview-requirements*
+
+- Neovim 0.8+
+- macOS
+- Marked 2 app (https://marked2app.com/)
+
+==============================================================================
+INSTALLATION                                                   *marked-preview-installation*
+
+Using lazy.nvim:
+>
+    {
+      "tkolleh/marked-preview.nvim",
+      config = function()
+        require("marked-preview").setup()
+      end,
+    }
+<
+
+Using packer.nvim:
+>
+    use {
+      'tkolleh/marked-preview.nvim',
+      config = function()
+        require("marked-preview").setup()
+      end
+    }
+<
+
+==============================================================================
+CONFIGURATION                                                  *marked-preview-configuration*
+
+You can customize the plugin behavior by passing a configuration table to the 
+setup function:
+>
+    require("marked-preview").setup({
+      -- Filetypes that trigger the plugin
+      filetypes = { "markdown", "mkd", "ghmarkdown", "vimwiki" },
+      
+      -- Debounce delay in milliseconds for automatic updates
+      debounce_delay = 500,
+    })
+<
+
+Configuration options:
+
+filetypes~                           List of filetypes that trigger the plugin.
+                                    Default: {"markdown", "mkd", "ghmarkdown", "vimwiki"}
+
+debounce_delay~                      Delay in milliseconds for automatic updates.
+                                    Default: 500
+
+==============================================================================
+COMMANDS                                                          *marked-preview-commands*
+
+:MarkedPreviewUpdate                 Update the Marked 2 preview with current buffer content
+
+:MarkedPreviewOpen                   Open Marked 2 streaming preview window
+
+:MarkedPreviewStart                  Start watching the current buffer for automatic updates
+
+:MarkedPreviewStop                   Stop watching the current buffer
+
+==============================================================================
+USAGE                                                             *marked-preview-usage*
+
+Basic Workflow~
+
+1. Open a Markdown file in Neovim
+2. Run |:MarkedPreviewOpen| to launch Marked 2
+3. Run |:MarkedPreviewStart| to enable automatic updates
+4. Write your Markdown content - the preview updates automatically as you type
+5. Use |:MarkedPreviewStop| when you're done to disable automatic updates
+
+Manual Updates~
+
+If you prefer manual control, you can use |:MarkedPreviewUpdate| to manually 
+refresh the preview with the current buffer content.
+
+Supported Filetypes~
+
+By default, the plugin works with:
+- markdown
+- mkd  
+- ghmarkdown
+- vimwiki
+
+You can customize this list in the configuration.
+
+==============================================================================
+TROUBLESHOOTING                                              *marked-preview-troubleshooting*
+
+Marked 2 Not Opening~
+
+- Ensure Marked 2 is installed and updated to the latest version
+- Check that the `open` command works in your terminal
+
+Preview Not Updating~
+
+- Verify that automatic watching is enabled with |:MarkedPreviewStart|
+- Check that your filetype is supported (see configuration)
+- Try manually updating with |:MarkedPreviewUpdate|
+
+Performance Issues~
+
+If you experience lag with automatic updates, increase the `debounce_delay` in 
+your configuration:
+>
+    require("marked-preview").setup({
+      debounce_delay = 1000, -- 1 second delay
+    })
+<
+
+==============================================================================
+API REFERENCE                                                    *marked-preview-api*
+
+Lua API~
+
+The plugin provides a Lua API for programmatic access:
+
+require('marked-preview').update([buf])~
+    Update the Marked 2 preview with buffer content.
+    Parameters:
+      buf - Optional buffer number (defaults to current buffer)
+    Returns: boolean success status
+
+require('marked-preview').open_marked()~
+    Open Marked 2 streaming preview window.
+    Returns: boolean success status
+
+require('marked-preview').start_watching([buf])~
+    Start watching a buffer for changes.
+    Parameters:
+      buf - Optional buffer number (defaults to current buffer)
+    Returns: boolean success status
+
+require('marked-preview').stop_watching([buf])~
+    Stop watching a buffer for changes.
+    Parameters:
+      buf - Optional buffer number (defaults to current buffer)
+    Returns: boolean success status
+
+require('marked-preview').is_watching([buf])~
+    Check if a buffer is currently being watched.
+    Parameters:
+      buf - Optional buffer number (defaults to current buffer)
+    Returns: boolean watching status
+
+require('marked-preview').setup([user_config])~
+    Setup function with configuration.
+    Parameters:
+      user_config - Optional configuration table
+
+==============================================================================
+LIMITATIONS                                                   *marked-preview-limitations*
+
+- Currently macOS-only due to Marked 2 and `pbcopy` dependency
+- Requires Marked 2 app for preview functionality
+- Streaming preview feature requires Marked 2 version 2.5.16 or later
+
+==============================================================================
+LICENSE                                                           *marked-preview-license*
+
+MIT License - see LICENSE file for details.
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:
