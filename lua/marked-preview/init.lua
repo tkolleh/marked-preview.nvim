@@ -42,7 +42,7 @@ end
 local function copy_to_named_clipboard(text)
   local cmd = "pbcopy -pboard mkStreamingPreview"
   local success = false
-  
+
   local proc = vim.fn.jobstart(cmd, {
     on_exit = function(_, code)
       if code == 0 then
@@ -52,18 +52,20 @@ local function copy_to_named_clipboard(text)
       end
     end,
   })
-  
+
   if proc <= 0 then
     vim.notify("Failed to start clipboard process", vim.log.levels.ERROR)
     return false
   end
-  
+
   vim.fn.chanwrite(proc, text)
   vim.fn.chanclose(proc, "stdin")
-  
+
   -- Wait briefly for process completion
-  vim.wait(100, function() return success end, 10)
-  
+  vim.wait(100, function()
+    return success
+  end, 10)
+
   return success
 end
 
@@ -72,8 +74,8 @@ end
 local function open_marked_app()
   local url = "x-marked://stream/"
   local success = false
-  
-  local proc = vim.fn.jobstart({"open", url}, {
+
+  local proc = vim.fn.jobstart({ "open", url }, {
     detach = true,
     on_exit = function(_, code)
       if code == 0 then
@@ -83,12 +85,12 @@ local function open_marked_app()
       end
     end,
   })
-  
+
   if proc <= 0 then
     vim.notify("Failed to start Marked 2", vim.log.levels.ERROR)
     return false
   end
-  
+
   return success
 end
 
@@ -97,18 +99,18 @@ end
 -- @return function: Debounced update function
 local function create_debounced_update(buf)
   local timer = nil
-  
+
   return function()
     if timer then
       timer:close()
     end
-    
+
     timer = vim.defer_fn(function()
       local content = get_buffer_content(buf)
       copy_to_named_clipboard(content)
       state.debounce_timers[buf] = nil
     end, config.debounce_delay)
-    
+
     state.debounce_timers[buf] = timer
   end
 end
@@ -133,31 +135,31 @@ end
 -- @return boolean: Success status
 function M.start_watching(buf)
   buf = buf or 0
-  
+
   if state.watching_buffers[buf] then
     vim.notify("Already watching buffer " .. buf, vim.log.levels.INFO)
     return false
   end
-  
+
   if not is_supported_filetype(vim.bo[buf].filetype) then
     vim.notify("Filetype not supported for buffer " .. buf, vim.log.levels.WARN)
     return false
   end
-  
+
   -- Create autocommand group if it doesn't exist
   if not state.autocommand_group then
     state.autocommand_group = vim.api.nvim_create_augroup("MarkedPreview", { clear = true })
   end
-  
+
   local debounced_update = create_debounced_update(buf)
-  
+
   -- Set up autocommands for text changes
-  vim.api.nvim_create_autocmd({"TextChanged", "TextChangedI", "TextChangedP"}, {
+  vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "TextChangedP" }, {
     group = state.autocommand_group,
     buffer = buf,
     callback = debounced_update,
   })
-  
+
   state.watching_buffers[buf] = true
   vim.notify("Started watching buffer " .. buf .. " for changes", vim.log.levels.INFO)
   return true
@@ -168,23 +170,23 @@ end
 -- @return boolean: Success status
 function M.stop_watching(buf)
   buf = buf or 0
-  
+
   if not state.watching_buffers[buf] then
     vim.notify("Not currently watching buffer " .. buf, vim.log.levels.INFO)
     return false
   end
-  
+
   -- Clear autocommands for this buffer
   if state.autocommand_group then
     vim.api.nvim_clear_autocmds({ group = state.autocommand_group, buffer = buf })
   end
-  
+
   -- Cancel any pending debounce timer for this buffer
   if state.debounce_timers[buf] then
     state.debounce_timers[buf]:close()
     state.debounce_timers[buf] = nil
   end
-  
+
   state.watching_buffers[buf] = nil
   vim.notify("Stopped watching buffer " .. buf .. " for changes", vim.log.levels.INFO)
   return true
@@ -205,10 +207,10 @@ function M.setup(user_config)
   if user_config then
     config = vim.tbl_deep_extend("force", vim.deepcopy(default_config), user_config)
   end
-  
+
   -- Set up filetype detection
   state.autocommand_group = vim.api.nvim_create_augroup("MarkedPreview", { clear = true })
-  
+
   vim.api.nvim_create_autocmd("FileType", {
     group = state.autocommand_group,
     pattern = config.filetypes,
