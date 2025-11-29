@@ -1,0 +1,118 @@
+= Marked 2 Neovim Plugin
+
+A Neovim plugin that provides real-time Markdown preview integration with the Marked 2 app on macOS.
+
+== Overview
+
+This plugin allows you to preview your Markdown files in Marked 2 as you type, providing a seamless writing experience. It automatically copies your buffer content to Marked 2's streaming clipboard and can optionally update the preview automatically on every text change.
+
+== Requirements
+
+* Neovim 0.8+
+* macOS
+* Marked 2 app (https://marked2app.com/)
+
+== Installation
+
+Using https://github.com/folke/lazy.nvim[lazy.nvim]:
+
+[source,lua]
+----
+{
+  "tkolleh/marked-preview.nvim",
+  config = function()
+    require("marked-preview").setup()
+  end,
+}
+----
+
+== Configuration
+
+You can customize the plugin behavior by passing a configuration table to the setup function:
+
+[source,lua]
+----
+require("marked-preview").setup({
+  -- Filetypes that trigger the plugin
+  filetypes = { "markdown", "mkd", "ghmarkdown", "vimwiki" },
+  
+  -- Debounce delay in milliseconds for automatic updates
+  debounce_delay = 500,
+})
+----
+
+== Usage
+
+=== Basic Commands
+
+* `:MarkedPreviewOpen` - Open Marked 2 streaming preview window
+* `:MarkedPreviewUpdate` - Manually update the preview with current buffer content
+
+=== Automatic Preview
+
+* `:MarkedPreviewStart` - Start watching the current buffer for automatic updates
+* `:MarkedPreviewStop` - Stop watching the current buffer
+
+When automatic watching is enabled, the plugin will update the Marked 2 preview automatically whenever you make changes to the buffer, with a configurable debounce delay to prevent excessive updates.
+
+=== Example Workflow
+
+1. Open a Markdown file in Neovim
+2. Run `:MarkedPreviewOpen` to launch Marked 2
+3. Run `:MarkedPreviewStart` to enable automatic updates
+4. Write your Markdown content - the preview updates automatically as you type
+5. Use `:MarkedPreviewStop` when you're done to disable automatic updates
+
+== How It Works
+
+The plugin uses macOS-specific features:
+
+* *Named Clipboard*: Copies content to the `mkStreamingPreview` pasteboard using `pbcopy`
+* *URL Scheme*: Opens Marked 2 using the `x-marked://stream/` URL scheme
+* *Autocommands*: Monitors text changes in supported filetypes
+* *Debouncing*: Prevents excessive updates using `vim.defer_fn`
+
+== Supported Filetypes
+
+By default, the plugin works with:
+
+* `markdown`
+* `mkd`
+* `ghmarkdown`
+* `vimwiki`
+
+You can customize this list in the configuration.
+
+== Troubleshooting
+
+=== Marked 2 Not Opening
+
+* Ensure Marked 2 is installed and updated to the latest version
+* Check that the `open` command works in your terminal
+
+=== Preview Not Updating
+
+* Verify that automatic watching is enabled with `:MarkedPreviewStart`
+* Check that your filetype is supported (see configuration)
+* Try manually updating with `:MarkedPreviewUpdate`
+
+=== Performance Issues
+
+If you experience lag with automatic updates, increase the `debounce_delay` in your configuration:
+
+[source,lua]
+----
+require("marked-preview").setup({
+  debounce_delay = 1000, -- 1 second delay
+})
+----
+
+== Limitations
+
+* Currently macOS-only due to Marked 2 and `pbcopy` dependency
+* Requires Marked 2 app for preview functionality
+* Streaming preview feature requires Marked 2 version 2.5.16 or later
+
+== License
+
+MIT License - see LICENSE file for details.
