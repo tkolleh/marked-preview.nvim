@@ -1,22 +1,24 @@
-# Marked 2 Neovim Plugin Testing Plan
+= Marked 2 Neovim Plugin Testing Plan
 
-## Overview
+== Overview
 This document outlines a step-by-step testing plan for the Marked 2 Neovim plugin using Neovim headless mode. The plan includes both automated scripts and manual verification steps.
 
-## Prerequisites
-- Neovim 0.8+
-- macOS (for Marked 2 integration)
-- Marked 2 app installed (for full integration testing)
+== Prerequisites
+* Neovim 0.8+
+* macOS (for Marked 2 integration)
+* Marked 2 app installed (for full integration testing)
 
-## Test Environment Setup
+== Test Environment Setup
 
-### 1. Create Test Directory Structure
-```bash
+=== 1. Create Test Directory Structure
+[source,bash]
+----
 mkdir -p test/{fixtures,scripts,results}
-```
+----
 
-### 2. Create Test Markdown Files
-```bash
+=== 2. Create Test Markdown Files
+[source,bash]
+----
 cat > test/fixtures/sample.md << 'EOF'
 # Test Document
 
@@ -28,12 +30,13 @@ This is a sample markdown file for testing.
 
 **Bold text** and *italic text*.
 EOF
-```
+----
 
-## Automated Testing Scripts
+== Automated Testing Scripts
 
-### 3. Create Basic Plugin Loading Test
-```bash
+=== 3. Create Basic Plugin Loading Test
+[source,bash]
+----
 cat > test/scripts/test_plugin_loading.sh << 'EOF'
 #!/bin/bash
 set -e
@@ -63,10 +66,11 @@ fi
 echo "✅ All plugin loading tests passed"
 EOF
 chmod +x test/scripts/test_plugin_loading.sh
-```
+----
 
-### 4. Create Functionality Test Script
-```bash
+=== 4. Create Functionality Test Script
+[source,bash]
+----
 cat > test/scripts/test_functionality.sh << 'EOF'
 #!/bin/bash
 set -e
@@ -106,10 +110,11 @@ rm "$TEST_FILE"
 echo "✅ All functionality tests completed"
 EOF
 chmod +x test/scripts/test_functionality.sh
-```
+----
 
-### 5. Create State Management Test
-```bash
+=== 5. Create State Management Test
+[source,bash]
+----
 cat > test/scripts/test_state_management.sh << 'EOF'
 #!/bin/bash
 set -e
@@ -137,10 +142,11 @@ grep -q "Initial watching state: false" test/results/state_test.log && \
 rm "$TEST_FILE"
 EOF
 chmod +x test/scripts/test_state_management.sh
-```
+----
 
-### 6. Create Integration Test Script
-```bash
+=== 6. Create Integration Test Script
+[source,bash]
+----
 cat > test/scripts/test_integration.sh << 'EOF'
 #!/bin/bash
 set -e
@@ -173,12 +179,13 @@ fi
 rm "$TEST_FILE"
 EOF
 chmod +x test/scripts/test_integration.sh
-```
+----
 
-## Manual Testing Steps
+== Manual Testing Steps
 
-### 7. Manual Verification Script
-```bash
+=== 7. Manual Verification Script
+[source,bash]
+----
 cat > test/scripts/manual_verification.sh << 'EOF'
 #!/bin/bash
 echo "Manual Verification Steps:"
@@ -203,12 +210,13 @@ echo ""
 echo "Note: Marked 2 must be installed for full integration testing."
 EOF
 chmod +x test/scripts/manual_verification.sh
-```
+----
 
-## Running the Test Suite
+== Running the Test Suite
 
-### 8. Create Master Test Runner
-```bash
+=== 8. Create Master Test Runner
+[source,bash]
+----
 cat > test/run_tests.sh << 'EOF'
 #!/bin/bash
 set -e
@@ -245,33 +253,34 @@ echo ""
 echo "Test results saved to: test/results/"
 EOF
 chmod +x test/run_tests.sh
-```
+----
 
-## Test Execution
+== Test Execution
 
-### 9. Execute the Test Suite
-```bash
+=== 9. Execute the Test Suite
+[source,bash]
+----
 # Make all scripts executable
 chmod +x test/scripts/*.sh
 
 # Run the complete test suite
 ./test/run_tests.sh
-```
+----
 
-## Expected Results
+== Expected Results
 
-- **Plugin Loading**: Should load without errors
-- **Commands**: All user commands should be available
-- **Functionality**: Buffer content retrieval and filetype detection should work
-- **State Management**: Watching state should transition correctly
-- **Integration**: Complete workflow should execute without errors
+* *Plugin Loading*: Should load without errors
+* *Commands*: All user commands should be available
+* *Functionality*: Buffer content retrieval and filetype detection should work
+* *State Management*: Watching state should transition correctly
+* *Integration*: Complete workflow should execute without errors
 
-## Troubleshooting
+== Troubleshooting
 
 If tests fail:
-1. Check Neovim version: `nvim --version`
-2. Verify plugin structure is correct
-3. Check if Marked 2 is installed (for manual testing)
-4. Review test logs in `test/results/`
+. Check Neovim version: `nvim --version`
+. Verify plugin structure is correct
+. Check if Marked 2 is installed (for manual testing)
+. Review test logs in `test/results/`
 
 This testing plan provides comprehensive coverage of the plugin's functionality using Neovim headless mode for automated testing and includes manual verification steps for full integration testing.
