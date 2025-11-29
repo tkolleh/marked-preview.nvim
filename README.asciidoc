@@ -115,4 +115,4 @@ require("marked-preview").setup({
 
 == License
 
-MIT License - see LICENSE file for details.
+European Union Public License 1.2 - see LICENSE file for details.
