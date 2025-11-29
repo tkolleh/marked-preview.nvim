@@ -18,7 +18,7 @@ nvim --headless -c "set rtp+=$PROJECT_ROOT" "$TEST_FILE" \
   -c 'lua local mp = require("marked-preview"); mp.setup()' \
   -c 'lua require("marked-preview").start_watching()' \
   -c 'normal iAdditional content␛' \
-  -c 'lua require("marked-preview").update()' \
+  -c 'sleep 600m' \
   -c 'lua require("marked-preview").stop_watching()' \
   -c 'echo "✅ Integration test completed"' \
   -c 'qa!' 2>&1 | tee test/results/integration_test.log

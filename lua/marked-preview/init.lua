@@ -36,68 +36,37 @@ end
 -- @return boolean: True if filetype is supported
 local function is_supported_filetype(filetype)
   filetype = filetype or vim.bo.filetype
-  return vim.tbl_contains(config.filetypes, filetype)
+  return config.filetype_set[filetype]
 end
 
 -- Copy text to the named clipboard
 -- @param text string: The text to copy
 -- @param callback function: Optional callback to run on completion
--- @return boolean: Success status
 local function copy_to_named_clipboard(text, callback)
   local cmd = "pbcopy -pboard mkStreamingPreview"
-  local success = false
-
-  local proc = vim.fn.jobstart(cmd, {
-    on_exit = function(_, code)
-      if code == 0 then
-        success = true
-        vim.notify("Preview updated successfully", vim.log.levels.INFO)
-      else
-        vim.notify("Error copying to clipboard: " .. cmd, vim.log.levels.ERROR)
-      end
-      if callback then
-        callback(success)
-      end
-    end,
-  })
-
-  if proc <= 0 then
-    vim.notify("Failed to start clipboard process", vim.log.levels.ERROR)
-    if callback then
-      callback(false)
+  vim.system({ cmd }, { text = text }, function(result)
+    local success = result.code == 0
+    if success then
+      vim.notify("Preview updated successfully", vim.log.levels.INFO)
+    else
+      vim.notify("Error copying to clipboard: " .. cmd, vim.log.levels.ERROR)
     end
-    return false
-  end
-
-  vim.fn.chanwrite(proc, text)
-  vim.fn.chanclose(proc, "stdin")
-
-  return true
+    if callback then
+      callback(success)
+    end
+  end)
 end
 
 -- Open Marked 2 streaming preview
 -- @return boolean: Success status
 local function open_marked_app()
   local url = "x-marked://stream/"
-  local success = false
-
-  local proc = vim.fn.jobstart({ "open", url }, {
-    detach = true,
-    on_exit = function(_, code)
-      if code == 0 then
-        success = true
-      else
-        vim.notify("Error opening Marked 2: " .. url, vim.log.levels.ERROR)
-      end
-    end,
-  })
-
-  if proc <= 0 then
-    vim.notify("Failed to start Marked 2", vim.log.levels.ERROR)
-    return false
-  end
-
-  return success
+  vim.system({ "open", url }, { detach = true }, function(result)
+    if result.code ~= 0 then
+      vim.notify("Error opening Marked 2: " .. url, vim.log.levels.ERROR)
+    end
+  end)
+  return true
 end
 
 -- Create debounced update function for a buffer
@@ -217,6 +186,12 @@ function M.setup(user_config)
   -- Deep merge user config with defaults
   if user_config then
     config = vim.tbl_deep_extend("force", vim.deepcopy(default_config), user_config)
+  end
+
+  -- Create a set for faster filetype lookups
+  config.filetype_set = {}
+  for _, ft in ipairs(config.filetypes) do
+    config.filetype_set[ft] = true
   end
 
   -- Set up filetype detection

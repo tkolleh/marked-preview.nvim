@@ -18,12 +18,7 @@ Using https://github.com/folke/lazy.nvim[lazy.nvim]:
 
 [source,lua]
 ----
-{
-  "tkolleh/marked-preview.nvim",
-  config = function()
-    require("marked-preview").setup()
-  end,
-}
+{ "tkolleh/marked-preview.nvim" }
 ----
 
 == Configuration

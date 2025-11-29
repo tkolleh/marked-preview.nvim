@@ -19,21 +19,18 @@ end
 
 -- Define user commands
 local function define_commands()
-  vim.api.nvim_create_user_command("MarkedPreviewUpdate", function()
-    require("marked-preview").update()
-  end, { desc = "Update Marked 2 preview with current buffer content" })
+  local commands = {
+    MarkedPreviewUpdate = { func = "update", desc = "Update Marked 2 preview with current buffer content" },
+    MarkedPreviewOpen = { func = "open_marked", desc = "Open Marked 2 streaming preview window" },
+    MarkedPreviewStart = { func = "start_watching", desc = "Start watching current buffer for automatic updates" },
+    MarkedPreviewStop = { func = "stop_watching", desc = "Stop watching current buffer for changes" },
+  }
 
-  vim.api.nvim_create_user_command("MarkedPreviewOpen", function()
-    require("marked-preview").open_marked()
-  end, { desc = "Open Marked 2 streaming preview window" })
-
-  vim.api.nvim_create_user_command("MarkedPreviewStart", function()
-    require("marked-preview").start_watching()
-  end, { desc = "Start watching current buffer for automatic updates" })
-
-  vim.api.nvim_create_user_command("MarkedPreviewStop", function()
-    require("marked-preview").stop_watching()
-  end, { desc = "Stop watching current buffer for changes" })
+  for name, cmd in pairs(commands) do
+    vim.api.nvim_create_user_command(name, function()
+      require("marked-preview")[cmd.func]()
+    end, { desc = cmd.desc })
+  end
 end
 
 -- Setup function for commands module
