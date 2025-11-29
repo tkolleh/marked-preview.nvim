@@ -1,4 +1,4 @@
-= Marked 2 Neovim Plugin
+= Marked Preview Neovim Plugin
 
 A Neovim plugin that provides real-time Markdown preview integration with the Marked 2 app on macOS.
 

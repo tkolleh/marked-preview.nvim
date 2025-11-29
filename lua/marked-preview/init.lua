@@ -41,8 +41,9 @@ end
 
 -- Copy text to the named clipboard
 -- @param text string: The text to copy
+-- @param callback function: Optional callback to run on completion
 -- @return boolean: Success status
-local function copy_to_named_clipboard(text)
+local function copy_to_named_clipboard(text, callback)
   local cmd = "pbcopy -pboard mkStreamingPreview"
   local success = false
 
@@ -50,26 +51,28 @@ local function copy_to_named_clipboard(text)
     on_exit = function(_, code)
       if code == 0 then
         success = true
+        vim.notify("Preview updated successfully", vim.log.levels.INFO)
       else
         vim.notify("Error copying to clipboard: " .. cmd, vim.log.levels.ERROR)
+      end
+      if callback then
+        callback(success)
       end
     end,
   })
 
   if proc <= 0 then
     vim.notify("Failed to start clipboard process", vim.log.levels.ERROR)
+    if callback then
+      callback(false)
+    end
     return false
   end
 
   vim.fn.chanwrite(proc, text)
   vim.fn.chanclose(proc, "stdin")
 
-  -- Wait briefly for process completion
-  vim.wait(100, function()
-    return success
-  end, 10)
-
-  return success
+  return true
 end
 
 -- Open Marked 2 streaming preview
@@ -110,7 +113,11 @@ local function create_debounced_update(buf)
 
     timer = vim.defer_fn(function()
       local content = get_buffer_content(buf)
-      copy_to_named_clipboard(content)
+      copy_to_named_clipboard(content, function(success)
+        if success then
+          -- Optional: add success notification if needed
+        end
+      end)
       state.debounce_timers[buf] = nil
     end, config.debounce_delay)
 
@@ -120,11 +127,12 @@ end
 
 -- Update the Marked 2 preview with the current buffer's content
 -- @param buf number: Buffer number (defaults to current buffer)
+-- @param callback function: Optional callback to run on completion
 -- @return boolean: Success status
-function M.update(buf)
+function M.update(buf, callback)
   buf = buf or 0
   local content = get_buffer_content(buf)
-  return copy_to_named_clipboard(content)
+  return copy_to_named_clipboard(content, callback)
 end
 
 -- Open Marked 2 streaming preview window
