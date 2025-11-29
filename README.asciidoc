@@ -10,7 +10,7 @@ This plugin allows you to preview your Markdown files in Marked 2 as you type, p
 
 * Neovim 0.8+
 * macOS
-* Marked 2 app (https://marked2app.com/)
+* https://marked2app.com[Marked 2 app]
 
 == Installation
 
