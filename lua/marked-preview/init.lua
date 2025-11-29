@@ -4,6 +4,9 @@
 
 local M = {}
 
+-- Global vim reference
+local vim = vim
+
 -- Plugin state managed per buffer
 local state = {
   watching_buffers = {},
@@ -221,6 +224,9 @@ function M.setup(user_config)
       end
     end,
   })
+
+  -- Setup commands module
+  require("marked-preview.commands").setup()
 end
 
 return M
